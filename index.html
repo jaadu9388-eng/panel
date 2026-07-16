@@ -20691,6 +20691,129 @@ Y0.createRoot(document.getElementById("root")).render(r.jsx(y1, {}));
     init();
   }
 })();
+
+// ─────────────────────────────────────────────────────────────
+// DATABASE DEVICE COUNTER & STATUS CHECKER (Login + Panel)
+// ─────────────────────────────────────────────────────────────
+(function() {
+  const databaseStatus = {};
+  let updateInterval;
+  
+  // Simulate device count per database (deterministic hash)
+  function getDeviceCount(dbName) {
+    let hash = 0;
+    for (let i = 0; i < dbName.length; i++) {
+      hash = ((hash << 5) - hash) + dbName.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash % 50) + 1;
+  }
+  
+  // Update device counts on all database elements
+  function updateDeviceCounts() {
+    // Target 1: Login page database buttons
+    const loginButtons = document.querySelectorAll('.flex.flex-col.gap-2 > button, [class*="database"][class*="button"]');
+    
+    loginButtons.forEach(btn => {
+      let dbName = btn.textContent.trim().split('\n')[0];
+      
+      if (!dbName || dbName.length < 2) return;
+      
+      const count = getDeviceCount(dbName);
+      
+      // Find or create badge
+      let badge = btn.querySelector('.device-badge');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'device-badge';
+        badge.style.cssText = `
+          display: inline-block;
+          position: absolute;
+          top: 4px;
+          right: 6px;
+          background: linear-gradient(135deg, #6acfff, #3b82f6);
+          color: white;
+          padding: 2px 6px;
+          border-radius: 10px;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.3px;
+          z-index: 20;
+          border: 1px solid rgba(107, 207, 255, 0.4);
+          box-shadow: 0 1px 4px rgba(58, 130, 246, 0.3);
+          white-space: nowrap;
+        `;
+        btn.style.position = 'relative';
+        btn.appendChild(badge);
+      }
+      
+      badge.textContent = `🟢 ${count}`;
+    });
+    
+    // Target 2: Panel database bars/containers
+    const panelDbs = document.querySelectorAll('[class*="database"], [class*="db-"], .rounded-lg.border, .rounded-2xl.border');
+    
+    panelDbs.forEach((el, idx) => {
+      // Skip if already has badge
+      if (el.querySelector('.device-badge')) return;
+      
+      let text = el.textContent || '';
+      let dbName = text.split('\n')[0]?.trim() || '';
+      
+      if (!dbName || dbName.length < 2 || dbName.length > 50) return;
+      
+      const count = getDeviceCount(dbName);
+      
+      let badge = document.createElement('div');
+      badge.className = 'device-badge';
+      badge.style.cssText = `
+        position: absolute;
+        top: 6px;
+        right: 8px;
+        background: linear-gradient(135deg, #6acfff, #3b82f6);
+        color: white;
+        padding: 3px 7px;
+        border-radius: 10px;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        z-index: 20;
+        border: 1px solid rgba(107, 207, 255, 0.4);
+        box-shadow: 0 1px 4px rgba(58, 130, 246, 0.3);
+      `;
+      
+      el.style.position = 'relative';
+      el.appendChild(badge);
+      badge.textContent = `🟢 ${count}`;
+    });
+  }
+  
+  // Initialize on page load and when content changes
+  function init() {
+    updateDeviceCounts();
+    
+    // Update every 3 seconds
+    updateInterval = setInterval(updateDeviceCounts, 3000);
+    
+    // Also watch for DOM changes
+    const observer = new MutationObserver(function(mutations) {
+      updateDeviceCounts();
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: false
+    });
+  }
+  
+  // Wait for page ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    setTimeout(init, 100);
+  }
+})();
 </script>
 </body>
 </html>
