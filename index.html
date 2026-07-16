@@ -20492,7 +20492,7 @@ Y0.createRoot(document.getElementById("root")).render(r.jsx(y1, {}));
       var isPanelScreen = root.querySelector('.sticky.top-0.z-40');
       var existingNav = document.getElementById('do-login-nav');
       if (isLoginScreen && !isPanelScreen) {
-        injectLoginNav();
+        // injectLoginNav(); // REMOVED: floating nav hidden from login page
         injectLoginH1();
       } else if (isPanelScreen) {
         if (existingNav) existingNav.remove();
@@ -20504,7 +20504,7 @@ Y0.createRoot(document.getElementById("root")).render(r.jsx(y1, {}));
     // Initial check
     setTimeout(function() {
       var isLogin = root.querySelector('.min-h-screen.flex.items-center.justify-center');
-      if (isLogin) { injectLoginNav(); injectLoginH1(); }
+      if (isLogin) { // injectLoginNav(); // REMOVED: floating nav hidden from login page injectLoginH1(); }
     }, 200);
     setTimeout(function() {
       var isLogin = root.querySelector('.min-h-screen.flex.items-center.justify-center');
